@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-'''
+
 # Read the image
 image = cv2.imread("Wirebond.tif", cv2.IMREAD_GRAYSCALE)
 
@@ -149,7 +149,7 @@ print(f"Number of foreground pixels that satisfy the conditions: {foreground_pix
 plt.show()
 
 
-'''
+
 ##problem 2
 
 
@@ -227,7 +227,7 @@ _, binary_image = cv2.threshold(ball_image, 127, 255, cv2.THRESH_BINARY)
 labelIm, num = FindComponentLabels(binary_image, structuring_element)
 
 # Display the labeled components
-print("Components found by my function:" + str(num))
+print("Components found by my function: " + str(num))
 plt.figure(figsize=(10, 10))
 plt.imshow(labelIm, cmap='nipy_spectral')
 plt.title("Labeled Components using FindComponentLabels")
@@ -243,7 +243,7 @@ plt.title("Labeled Components using OpenCV's built-in function")
 plt.axis('off')
 plt.show()
 
-print("Labeled components found by builtin:" + str(ret-1))
+print("Labeled components found by builtin: " + str(ret-1))
 
 def extract_border_particles(binary_img, labels_img):
     """
@@ -295,11 +295,6 @@ axes[1].axis('off')
 
 plt.tight_layout()
 plt.show()
-
-# Count the number of unique labels on the border image
-unique_labels = np.unique(border_image)
-border_particle_count = len(unique_labels) - 1  # Subtracting 1 for the background label
-print("particles on the border:" + str(border_particle_count))
 
 def estimate_particle_size(binary_img, labels_img):
     """
@@ -376,11 +371,6 @@ axes[1].axis('off')
 plt.tight_layout()
 plt.show()
 
-# Count the number of unique labels on the overlapping image
-unique_labels_overlap = np.unique(overlapping_image)
-overlapping_particle_count = len(unique_labels_overlap) - 1  # Subtracting 1 for the background label
-print("overlapping particle count: " + str(overlapping_particle_count))
-
 
 def extract_partial_border_particles(binary_img, labels_img, estimated_size):
     """
@@ -438,7 +428,81 @@ axes[1].axis('off')
 plt.tight_layout()
 plt.show()
 
-# Count the number of unique labels on the partial border image
-unique_labels_partial = np.unique(partial_border_image)
-partial_border_particle_count = len(unique_labels_partial) - 1  # Subtracting 1 for the background label
-print("partial border particle count: " + str(partial_border_particle_count))
+
+def border_particle_count(labelIm, border_image):
+    """
+    Function to count the unique labels corresponding to border particles.
+
+    Parameters:
+    - labelIm: Labeled image
+    - border_image: Image of border particles
+
+    Returns:
+    - count: Number of unique labels corresponding to border particles
+    """
+    
+    # Extract labels from the labeled image where the border image has values of 255
+    labels_from_original = labelIm[border_image == 255]
+
+    # Count unique labels excluding the background label
+    unique_labels = np.unique(labels_from_original)
+    unique_labels = unique_labels[unique_labels != 0]
+    
+    count = len(unique_labels)
+    return count
+
+def overlapping_particle_count(labelIm, overlapping_image):
+    """
+    Function to count the unique labels corresponding to overlapping particles.
+
+    Parameters:
+    - labelIm: Labeled image
+    - overlapping_image: Image of overlapping particles
+
+    Returns:
+    - count: Number of unique labels corresponding to overlapping particles
+    """
+    
+    # Extract labels from the labeled image where the overlapping image has values of 255
+    labels_from_original = labelIm[overlapping_image == 255]
+
+    # Count unique labels excluding the background label
+    unique_labels = np.unique(labels_from_original)
+    unique_labels = unique_labels[unique_labels != 0]
+    
+    count = len(unique_labels)
+    return count
+
+def partial_border_particle_count(labelIm, partial_border_image):
+    """
+    Function to count the unique labels corresponding to partial border particles.
+
+    Parameters:
+    - labelIm: Labeled image
+    - partial_border_image: Image of partial border particles
+
+    Returns:
+    - count: Number of unique labels corresponding to partial border particles
+    """
+    
+    # Extract labels from the labeled image where the partial border image has values of 255
+    labels_from_original = labelIm[partial_border_image == 255]
+
+    # Count unique labels excluding the background label
+    unique_labels = np.unique(labels_from_original)
+    unique_labels = unique_labels[unique_labels != 0]
+    
+    count = len(unique_labels)
+    return count
+
+# Using the new functions to get corrected counts
+border_count = border_particle_count(labelIm, border_image)
+overlap_count = overlapping_particle_count(labelIm, overlapping_image)
+partial_border_count = partial_border_particle_count(labelIm, partial_border_image)
+
+print("Number of connected particles residing on the border:", border_count)
+
+print("Number of overlapping connected particles not residing on the border:", overlap_count)
+
+print("Number of visually partial individual round particles on the border:", partial_border_count)
+
